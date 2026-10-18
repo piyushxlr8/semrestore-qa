@@ -51,9 +51,9 @@ def main(cfg):
             c = ctrl.loc[e.edit_id]
             mask = load_mask(e.mask_path)
             with np.load(res / "maps" / f"{e.item_id}.npz") as z:
-                smap, dmap = z["shafe_resnet"], z["dino"]
+                smap, dmap, cmap = z["shafe_resnet"], z["dino"], z["color"]
             ours = M.dino_heatmap(dmap, fz["stored_layers"], fz["params"]["semrestore"]["layers"], True,
-                                  fz["calibration"])
+                                  fz["calibration"], cmap)
             show(axes[r][0], ref, cols[0] if r == 0 else None)
             show(axes[r][1], ed, cols[1] if r == 0 else None)
             mask_outline(axes[r][1], mask)

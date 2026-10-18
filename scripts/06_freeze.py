@@ -1,7 +1,7 @@
 """06 - Calibrate and tune on DEV ONLY, then freeze the metric.
 
-1. Calibration: per-layer mean/std of DINOv2 patch distances on dev references that are only
-   blurred or noised (no content change). "This much distance is normal for blur."
+1. Calibration: per-layer mean/std of DINOv2 patch distances (and of the colour map) on dev
+   references that are only blurred or noised (no content change). "This much is normal for blur."
 2. Tuning: for each DINO-based variant, try the small grid in config.yaml and keep the setting
    with the best mean dev AUROC (edits vs PSNR-matched controls).
 3. Thresholds: for every metric, the F1-best threshold and the 5%-FPR threshold on dev.
@@ -34,23 +34,25 @@ def main(cfg):
     stored = cfg["metrics"]["dino"]["layers"]
 
     calib_ids = dev[dev.kind == "degraded"].item_id
-    stats = M.calibration_stats(list(load_maps(res, calib_ids).values()))
+    stats = M.calibration_stats(list(load_maps(res, calib_ids).values()),
+                                list(load_maps(res, calib_ids, key="color").values()))
     print(f"calibration: {len(calib_ids)} blurred/noised dev references")
 
     eval_items = dev[dev.kind.isin(["edit", "control_blur", "control_noise"])]
     maps = load_maps(res, eval_items.item_id)
+    colors = load_maps(res, eval_items.item_id, key="color")
     base = badness_table(eval_items, scores, {})
 
     grid_rows, best = [], {}
     layer_sets = [ls for ls in tc["layer_subsets"] if all(l in stored for l in ls)]
-    for variant, (calibrated, pooling) in M.DINO_VARIANTS.items():
+    for variant, (calibrated, pooling, _) in M.DINO_VARIANTS.items():
         if pooling == "topk":
             knob, values = "k_frac", tc["topk_fracs"]
         else:
             knob, values = "tau", tc["calibrated_temperatures"] if calibrated else tc["softmax_temperatures"]
         for layers, v in itertools.product(layer_sets, values):
             params = {"layers": layers, knob: v}
-            s = dino_scores(maps, variant, params, stored, stats)
+            s = dino_scores(maps, variant, params, stored, stats, colors)
             bad = base.copy()
             bad[variant] = M.to_badness(variant, bad.item_id.map(s))
             obj = mean_auroc_over_types(bad, variant)
@@ -60,7 +62,7 @@ def main(cfg):
         print(f"{variant:18s} best on dev: {best[variant][0]}  mean AUROC={best[variant][1]:.3f}")
 
     params = {v: p for v, (p, _) in best.items()}
-    derived = {v: dino_scores(maps, v, params[v], stored, stats) for v in params}
+    derived = {v: dino_scores(maps, v, params[v], stored, stats, colors) for v in params}
     bad = badness_table(eval_items, scores, derived)
 
     thresholds = {}

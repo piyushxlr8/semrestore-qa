@@ -26,21 +26,21 @@ from .utils import psnr
 HIGHER_IS_BETTER = {
     "psnr": True, "ssim": True, "ms_ssim": True,
     "lpips": False, "dists": False, "dino_global": False, "shafe_resnet": False,
-    "shafe_dino": False, "shafe_dino_calib": False, "dino_topk": False, "semrestore": False,
+    "shafe_dino": False, "shafe_dino_calib": False, "semrestore_topk": False, "semrestore": False,
 }
 
 # encoder "family" of every learned metric; edits/validity models must not share these
 METRIC_ENCODER_FAMILY = {"lpips": "alexnet_imagenet", "dists": "vgg_imagenet",
                          "shafe_resnet": "resnet_imagenet", "dino_global": "dinov2",
                          "shafe_dino": "dinov2", "shafe_dino_calib": "dinov2",
-                         "dino_topk": "dinov2", "semrestore": "dinov2"}
+                         "semrestore_topk": "dinov2", "semrestore": "dinov2"}
 GENERATOR_FAMILIES = {"stable_diffusion", "lama", "openai_clip"}
 
-DINO_VARIANTS = {   # name -> (use calibration?, pooling)
-    "shafe_dino": (False, "softmax"),
-    "shafe_dino_calib": (True, "softmax"),
-    "dino_topk": (False, "topk"),
-    "semrestore": (True, "topk"),
+DINO_VARIANTS = {   # name -> (use calibration?, pooling, add colour map?)
+    "shafe_dino": (False, "softmax", False),
+    "shafe_dino_calib": (True, "softmax", False),
+    "semrestore": (True, "softmax", True),
+    "semrestore_topk": (True, "topk", True),
 }
 
 
@@ -171,9 +171,23 @@ class RawScorer:
             glob, dmaps = self._dino(a, b)
             res["dino_global"] = glob.cpu().numpy()
         rows = [{k: float(v[i]) for k, v in res.items()} for i in range(len(refs))]
+        g = self.dino_cfg["input_size"] // 14
         maps = [{"shafe_resnet": smap[i].cpu().numpy().astype(np.float16),
-                 "dino": dmaps[i].cpu().numpy().astype(np.float16)} for i in range(len(refs))]
+                 "dino": dmaps[i].cpu().numpy().astype(np.float16),
+                 "color": color_map(r, t, g).astype(np.float16)} for i, (r, t) in enumerate(zip(refs, tests))]
         return rows, maps
+
+
+def color_map(ref: np.ndarray, test: np.ndarray, grid: int = 32) -> np.ndarray:
+    """Per-patch colour difference: average each image's Lab a*/b* (the colour, not the
+    brightness) over a grid x grid set of patches, then take the distance per patch.
+    Averaging over a patch is a low-pass filter, so blur and noise barely change it."""
+    import cv2
+    a = cv2.cvtColor(ref.astype(np.float32), cv2.COLOR_RGB2LAB)[..., 1:]
+    b = cv2.cvtColor(test.astype(np.float32), cv2.COLOR_RGB2LAB)[..., 1:]
+    a = cv2.resize(a, (grid, grid), interpolation=cv2.INTER_AREA)
+    b = cv2.resize(b, (grid, grid), interpolation=cv2.INTER_AREA)
+    return np.sqrt(((a - b) ** 2).sum(-1))
 
 
 # ============================================================================ Part B: pooling
@@ -190,27 +204,34 @@ def topk_pool(m: np.ndarray, frac: float) -> float:
     return float(flat[:k].mean())
 
 
-def calibration_stats(dino_maps: list[np.ndarray]) -> dict:
-    """Per-layer mean / std of patch distances on 'blurry or noisy but correct' dev images."""
+def calibration_stats(dino_maps: list[np.ndarray], color_maps: list[np.ndarray]) -> dict:
+    """Mean / std of patch distances on 'blurry or noisy but correct' dev images:
+    one pair per DINOv2 layer, plus one for the colour map."""
     stack = np.stack([m.astype(np.float64) for m in dino_maps])          # (n, L, g, g)
-    mu = stack.mean(axis=(0, 2, 3))
-    sd = stack.std(axis=(0, 2, 3)) + 1e-6
-    return {"mu": mu.tolist(), "sd": sd.tolist()}
+    col = np.stack([m.astype(np.float64) for m in color_maps])           # (n, g, g)
+    return {"mu": stack.mean(axis=(0, 2, 3)).tolist(), "sd": (stack.std(axis=(0, 2, 3)) + 1e-6).tolist(),
+            "color_mu": float(col.mean()), "color_sd": float(col.std() + 1e-6)}
 
 
-def dino_heatmap(maps: np.ndarray, stored_layers, layers, calibrate: bool, stats=None) -> np.ndarray:
-    """Combine the selected layers of one item's (L, g, g) maps into a single (g, g) map."""
+def dino_heatmap(maps: np.ndarray, stored_layers, layers, calibrate: bool, stats=None,
+                 color=None) -> np.ndarray:
+    """Combine the selected layers of one item's (L, g, g) maps (and optionally its (g, g)
+    colour map) into a single (g, g) map."""
     idx = [list(stored_layers).index(l) for l in layers]
     m = maps.astype(np.float64)[idx]
     if calibrate:
         mu = np.asarray(stats["mu"])[idx][:, None, None]
         sd = np.asarray(stats["sd"])[idx][:, None, None]
         m = np.maximum(0.0, (m - mu) / sd)       # "how many blur-stds above normal" per patch
+    if color is not None:                        # colour map = one more calibrated "layer"
+        zc = np.maximum(0.0, (color.astype(np.float64) - stats["color_mu"]) / stats["color_sd"])
+        m = np.concatenate([m, zc[None]], 0)
     return m.mean(0)
 
 
-def dino_variant_score(maps, variant, params, stored_layers, stats=None):
-    calibrate, pooling = DINO_VARIANTS[variant]
-    hm = dino_heatmap(maps, stored_layers, params["layers"], calibrate, stats)
+def dino_variant_score(maps, variant, params, stored_layers, stats=None, color=None):
+    calibrate, pooling, use_color = DINO_VARIANTS[variant]
+    hm = dino_heatmap(maps, stored_layers, params["layers"], calibrate, stats,
+                      color if use_color else None)
     score = softmax_pool(hm, params["tau"]) if pooling == "softmax" else topk_pool(hm, params["k_frac"])
     return score, hm

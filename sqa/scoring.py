@@ -23,8 +23,10 @@ def load_maps(res_dir, item_ids, key="dino") -> dict:
     return out
 
 
-def dino_scores(maps: dict, variant: str, params: dict, stored_layers, stats=None) -> dict:
-    return {i: M.dino_variant_score(m, variant, params, stored_layers, stats)[0] for i, m in maps.items()}
+def dino_scores(maps: dict, variant: str, params: dict, stored_layers, stats=None, colors=None) -> dict:
+    colors = colors or {}
+    return {i: M.dino_variant_score(m, variant, params, stored_layers, stats, colors.get(i))[0]
+            for i, m in maps.items()}
 
 
 def badness_table(items: pd.DataFrame, scores: pd.DataFrame, derived: dict[str, dict]) -> pd.DataFrame:
