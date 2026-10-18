@@ -120,26 +120,31 @@ are the only ground truth.
 | Deep feature, global | LPIPS, DISTS, DINOv2 CLS cosine |
 | Localized (baseline) | **SHAFE-ResNet**, same recipe as official `SHAFE.py` (ResNet-50 features at 2 layers, FFT low-pass, softmax τ = 0.02) |
 | Localized (baseline) | **SHAFE-DINO**: the SHAFE recipe on DINOv2 features |
-| Ours | **SemRestore** = SHAFE-DINO + calibration + top-k pooling |
+| Ours | **SemRestore** = SHAFE-DINO + colour map + calibration (softmax pooling kept) |
 
 **Our metric in four lines** (for patch p and DINOv2 layer l):
 
 ```
 d_l(p) = 1 − cos( feat_l(ref)[p], feat_l(test)[p] )          patch distance (images low-passed first)
-z_l(p) = max(0, (d_l(p) − μ_l) / σ_l)                        calibration: μ_l, σ_l = typical distance
+c(p)   = | mean Lab colour of patch p (ref) − (test) |        colour map (a*, b* only)
+z(p)   = max(0, (d(p) − μ) / σ)  for every layer and for c    calibration: μ, σ = typical value
                                                              caused by blur/noise alone on DEV images
-Z(p)   = mean over chosen layers of z_l(p)                   → this is the heatmap
-score  = mean of the top k% of Z(p)                          worst-region pooling
+Z(p)   = mean of the z maps  → heatmap;   score = Σ softmax(Z/τ)·Z   (SHAFE's pooling)
 ```
 
 The two ideas are simple to explain:
-- **Calibration:** "how unusual is this patch's difference, compared with what blur or noise
-  alone would cause?" Blur raises distances a little everywhere; a changed object raises them a
-  lot in one place.
-- **Top-k pooling:** one wrong object should not be averaged away by thousands of correct patches.
+- **Colour map:** DINOv2 is trained with colour-jitter augmentation, so it is close to colour-blind
+  (SHAFE-DINO is at chance on recoloured objects). A per-patch colour difference fixes that.
+- **Calibration:** "how unusual is this patch's difference, compared with what blur or noise alone
+  would cause?" It puts the DINO maps and the colour map on one scale so they can be averaged.
 
-**Ablation.** Every step is reported separately: SHAFE-DINO → + calibration → + top-k →
-SemRestore. If a step does not help on test, we say so and drop it from the claim.
+**What changed after the first run (dev data only).** Our original plan used top-k pooling instead
+of the colour map. On dev, top-k and calibration alone did not beat SHAFE-DINO, and the per-type
+table showed the recolor failure. We added the colour map, kept SHAFE's softmax pooling, froze on dev,
+and only then evaluated on test. Results: [RESULTS.md](RESULTS.md).
+
+**Ablation.** Every step is reported separately: SHAFE-DINO → + calibration → + colour map
+(= SemRestore), plus a top-k pooling variant.
 
 ### 5.6 No tuning on test (the freeze)
 Calibration statistics, hyperparameters (which layers, τ, k) and all thresholds are chosen on the
@@ -235,7 +240,7 @@ an analysis of which content changes SHAFE still misses. That is still a complet
 5. **Our question and what is new** – the table in §4.
 6. **Benchmark** – the 4 edit types with examples (`edit_samples.png`), and the paste-back rule.
 7. **Key test** – PSNR-matched controls, explained in one sentence.
-8. **Our metric** – the four-line formula and the two ideas (calibration, top-k).
+8. **Our metric** – the four-line formula and the two ideas (colour map, calibration).
 9. **Cross-family and human study** – edit-then-restore diagram; the rating-page screenshot.
 10. **Evaluation and protocol** – metrics table (§6) and the dev/test freeze.
 11. **Progress so far** – only what actually ran: N images, example edits, first win-rates.

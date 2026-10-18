@@ -95,7 +95,8 @@ def main(cfg):
     for k, m in enumerate(key):
         row = t3[t3.metric == m]
         if len(row):
-            ax.plot(sigmas, row[sig_cols].iloc[0].values, marker="o", ms=3, color=PALETTE[k % len(PALETTE)],
+            ax.plot(sigmas, row[sig_cols].iloc[0].values, marker="o", ms=3,
+                    color="#000000" if m == "semrestore" else PALETTE[k % len(PALETTE)],
                     label=f"{pretty(m)} (SBC {row.sbc_area.iloc[0]:.2f})", lw=2 if m == "semrestore" else 1.2)
     ax.set_xlabel("blur σ applied to the clean reference")
     ax.set_ylabel("P(blurred clean judged better than edit)")

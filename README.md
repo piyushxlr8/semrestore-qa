@@ -7,7 +7,7 @@ change objects. PSNR, SSIM and LPIPS often score such a "sharp but wrong" output
 slightly blurry but correct one (HalluGen, CVPR 2026, showed this on brain MRI). We test this on
 natural photos, with four kinds of content change, and build a simple metric that catches them.
 
-The project plan (motivation, method, evaluation, human study, schedule, slide outline) is in
+**Results of our first full run: [RESULTS.md](RESULTS.md).** The project plan (motivation, method, evaluation, human study, schedule, slide outline) is in
 **[PLAN.md](PLAN.md)**. This README is about running the code.
 
 ---
