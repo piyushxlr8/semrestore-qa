@@ -46,8 +46,13 @@ def seed_everything(seed: int) -> None:
 
 
 def get_device() -> str:
+    """cuda (Colab / NVIDIA), mps (Apple Silicon Mac) or cpu."""
     import torch
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
 
 
 # ----------------------------------------------------------------------------- image I/O

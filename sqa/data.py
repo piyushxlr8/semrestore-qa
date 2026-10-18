@@ -4,6 +4,7 @@ from __future__ import annotations
 import io
 import urllib.request
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -58,9 +59,9 @@ def build_dataset(cfg) -> pd.DataFrame:
     rng.shuffle(img_ids)
 
     lo, hi = dcfg["object_area_frac"]
-    rows = []
+    chosen = []                      # pass 1: pick images and target objects (annotations only)
     for img_id in img_ids:
-        if len(rows) >= dcfg["n_images"]:
+        if len(chosen) >= int(dcfg["n_images"] * 1.1):   # 10% spare in case a download fails
             break
         info = coco.loadImgs(img_id)[0]
         anns = coco.loadAnns(coco.getAnnIds(imgIds=img_id, iscrowd=None))
@@ -80,31 +81,37 @@ def build_dataset(cfg) -> pd.DataFrame:
             frac = cropped.sum() / (size * size)
             if lo <= frac <= hi and survived >= dcfg["min_area_survival"]:
                 candidates.append((a, cropped, frac))
-        if not candidates:
-            continue
+        if candidates:
+            a, obj_mask, frac = candidates[rng.integers(len(candidates))]
+            chosen.append((info, anns, a, obj_mask, union, frac))
 
+    def fetch(info):                 # pass 2: download the chosen images, 8 at a time
         try:
-            with urllib.request.urlopen(info["coco_url"], timeout=30) as r:
-                pil = Image.open(io.BytesIO(r.read())).convert("RGB")
-        except Exception as e:  # network hiccup: skip this image
-            print(f"skip {img_id}: {e}")
-            continue
-        img = crop_array(np.asarray(pil), size, Image.BICUBIC).astype(np.float32) / 255.0
+            with urllib.request.urlopen(info["coco_url"], timeout=60) as r:
+                return Image.open(io.BytesIO(r.read())).convert("RGB")
+        except Exception as e:       # network hiccup: skip this image
+            print(f"skip {info['id']}: {e}")
+            return None
 
-        a, obj_mask, frac = candidates[rng.integers(len(candidates))]
-        image_id = f"coco{img_id:012d}"
-        ref_path = root / "refs" / f"{image_id}.png"
-        obj_path = root / "masks" / f"{image_id}_object.png"
-        all_path = root / "masks" / f"{image_id}_allobjects.png"
-        save_image(img, ref_path)
-        save_mask(obj_mask, obj_path)
-        save_mask(union, all_path)
-        present = sorted({cat_name[x["category_id"]] for x in anns})
-        rows.append(dict(image_id=image_id, coco_id=img_id, ref_path=str(ref_path),
-                         object_category=cat_name[a["category_id"]], object_mask_path=str(obj_path),
-                         object_area_frac=round(float(frac), 4), all_objects_mask_path=str(all_path),
-                         categories_present=";".join(present)))
-        print(f"[{len(rows)}/{dcfg['n_images']}] {image_id} target={rows[-1]['object_category']}")
+    rows = []
+    with ThreadPoolExecutor(8) as pool:
+        for (info, anns, a, obj_mask, union, frac), pil in zip(chosen, pool.map(fetch, [c[0] for c in chosen])):
+            if pil is None or len(rows) >= dcfg["n_images"]:
+                continue
+            img = crop_array(np.asarray(pil), size, Image.BICUBIC).astype(np.float32) / 255.0
+            image_id = f"coco{info['id']:012d}"
+            ref_path = root / "refs" / f"{image_id}.png"
+            obj_path = root / "masks" / f"{image_id}_object.png"
+            all_path = root / "masks" / f"{image_id}_allobjects.png"
+            save_image(img, ref_path)
+            save_mask(obj_mask, obj_path)
+            save_mask(union, all_path)
+            present = sorted({cat_name[x["category_id"]] for x in anns})
+            rows.append(dict(image_id=image_id, coco_id=info["id"], ref_path=str(ref_path),
+                             object_category=cat_name[a["category_id"]], object_mask_path=str(obj_path),
+                             object_area_frac=round(float(frac), 4), all_objects_mask_path=str(all_path),
+                             categories_present=";".join(present)))
+            print(f"[{len(rows)}/{dcfg['n_images']}] {image_id} target={rows[-1]['object_category']}")
 
     df = pd.DataFrame(rows)
     order = rng.permutation(len(df))
