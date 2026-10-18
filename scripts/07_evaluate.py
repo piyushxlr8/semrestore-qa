@@ -42,7 +42,8 @@ def main(cfg):
 
     # ---- badness for every item with the FROZEN settings (dev + test; only test is reported)
     maps = load_maps(res, items.item_id)
-    derived = {v: dino_scores(maps, v, params[v], stored, stats) for v in params}
+    colors = load_maps(res, items.item_id, key="color")
+    derived = {v: dino_scores(maps, v, params[v], stored, stats, colors) for v in params}
     bad_all = badness_table(items, scores, derived)
     bad_all.to_csv(res / "badness.csv", index=False)
     bad = bad_all[bad_all.split == "test"]
@@ -129,8 +130,9 @@ def main(cfg):
         mask = load_mask(r.mask_path)
         heat = {"shafe_resnet": smaps[r.item_id]}
         for v in ["shafe_dino", "semrestore"]:
-            cal = M.DINO_VARIANTS[v][0]
-            heat[v] = M.dino_heatmap(maps[r.item_id], stored, params[v]["layers"], cal, stats)
+            cal, _, use_color = M.DINO_VARIANTS[v]
+            heat[v] = M.dino_heatmap(maps[r.item_id], stored, params[v]["layers"], cal, stats,
+                                     colors[r.item_id] if use_color else None)
         for m, hm in heat.items():
             loc_rows.append(dict(metric=m, edit_type=r.edit_type, image_id=r.image_id,
                                  pointing=V.pointing_game(hm, mask), iou=V.iou_at_mask_area(hm, mask),
@@ -161,6 +163,7 @@ def main(cfg):
     t7 = []
     for v in M.DINO_VARIANTS:
         row = dict(variant=v, calibration=M.DINO_VARIANTS[v][0], pooling=M.DINO_VARIANTS[v][1],
+                   colour_map=M.DINO_VARIANTS[v][2],
                    frozen_params=str(params[v]), dev_mean_auroc=fz["dev_mean_auroc"][v])
         r1 = t1[(t1.metric == v) & (t1.edit_type == "all")]
         row["test_auroc"] = float(r1.auroc.iloc[0]) if len(r1) else np.nan

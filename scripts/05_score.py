@@ -15,8 +15,25 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sqa.items import build_items  # noqa: E402
-from sqa.metrics import RawScorer  # noqa: E402
+from sqa.metrics import RawScorer, color_map  # noqa: E402
 from sqa.utils import data_dir, ensure, get_device, load_config, load_image, results_dir, seed_everything  # noqa: E402
+
+
+def add_missing_color_maps(items, maps_dir, cfg):
+    """Older map files have no colour map yet: add it (cheap, CPU only, no networks)."""
+    g = cfg["metrics"]["dino"]["input_size"] // 14
+    n = 0
+    for r in items.itertuples():
+        path = maps_dir / f"{r.item_id}.npz"
+        with np.load(path) as z:
+            if "color" in z:
+                continue
+            maps = dict(z)
+        maps["color"] = color_map(load_image(r.ref_path), load_image(r.test_path), g).astype(np.float16)
+        np.savez_compressed(path, **maps)
+        n += 1
+    if n:
+        print(f"added colour maps to {n} already-scored items")
 
 
 def main(cfg):
@@ -31,6 +48,7 @@ def main(cfg):
     old = pd.read_csv(score_path) if score_path.exists() else pd.DataFrame(columns=["item_id"])
     todo = items[~items.item_id.isin(set(old.item_id))]
     print(f"\n{len(todo)} new items to score ({len(old)} already done)")
+    add_missing_color_maps(items[items.item_id.isin(set(old.item_id))], maps_dir, cfg)
     if todo.empty:
         return
 

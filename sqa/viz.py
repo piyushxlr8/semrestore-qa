@@ -18,7 +18,7 @@ PALETTE = ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#F
 PRETTY = {"psnr": "PSNR", "ssim": "SSIM", "ms_ssim": "MS-SSIM", "lpips": "LPIPS", "dists": "DISTS",
           "dino_global": "DINO global", "shafe_resnet": "SHAFE-ResNet (official)",
           "shafe_dino": "SHAFE-DINO", "shafe_dino_calib": "SHAFE-DINO + calib",
-          "dino_topk": "DINO + top-k", "semrestore": "SemRestore (ours)"}
+          "semrestore_topk": "SemRestore top-k", "semrestore": "SemRestore (ours)"}
 
 
 def pretty(m):

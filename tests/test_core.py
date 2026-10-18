@@ -99,14 +99,26 @@ def test_pooling():
 def test_calibration_and_variants():
     rng = np.random.default_rng(0)
     calib = [rng.random((4, 8, 8)) * 0.1 for _ in range(5)]
-    stats = M.calibration_stats(calib)
+    calib_col = [rng.random((8, 8)) for _ in range(5)]
+    stats = M.calibration_stats(calib, calib_col)
     edit = rng.random((4, 8, 8)) * 0.1
     edit[:, 2:4, 2:4] = 0.9
     for v in M.DINO_VARIANTS:
         params = {"layers": [6, 12], "tau": 0.05, "k_frac": 0.05}
-        s_edit, hm = M.dino_variant_score(edit, v, params, [3, 6, 9, 12], stats)
-        s_ctrl, _ = M.dino_variant_score(calib[0], v, params, [3, 6, 9, 12], stats)
+        s_edit, hm = M.dino_variant_score(edit, v, params, [3, 6, 9, 12], stats, calib_col[1])
+        s_ctrl, _ = M.dino_variant_score(calib[0], v, params, [3, 6, 9, 12], stats, calib_col[0])
         assert hm.shape == (8, 8) and s_edit > s_ctrl
+
+
+def test_colour_map_sees_recolour_but_not_blur():
+    from sqa.utils import gaussian_blur
+    ref = textured(5, 224)
+    mask = np.zeros(ref.shape[:2], bool)
+    mask[40:120, 40:120] = True
+    recol = M.color_map(ref, E.recolor(ref, mask, 150), 16)
+    blur = M.color_map(ref, gaussian_blur(ref, 2.0), 16)
+    assert recol.max() > 5 * blur.max()
+    assert recol[3:7, 3:7].mean() > 10 * recol[10:, 10:].mean()      # only the recoloured patches
 
 
 def test_identity_gives_best_score_with_random_networks():
