@@ -1,0 +1,98 @@
+# SemRestore-QA: one config file for the whole project.
+# Every script reads this file:  python scripts/0X_name.py --config config.yaml
+
+seed: 0
+
+paths:
+  data_dir: data          # images, edits, controls, restorations (not committed to git)
+  results_dir: results    # scores, tables, figures, human study
+
+# ---------------------------------------------------------------- 01 dataset
+dataset:
+  coco_annotations_url: http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+  coco_split: val2017          # images come from COCO's train/val images only (never COCO test)
+  n_images: 300                # 150 dev + 150 held-out test
+  n_dev: 150                   # dev = used for calibration + tuning; test = held out, never tuned on
+  image_size: 512
+  object_area_frac: [0.03, 0.25]   # target object must cover 3-25% of the crop
+  min_area_survival: 0.9           # at least 90% of the object must survive the center crop
+
+# ---------------------------------------------------------------- 02 edits
+edits:
+  types: [addition, removal, substitution, recolor]
+  mask_dilate_px: 10            # generation region = object mask dilated by this much
+  feather_px: 3                 # soft blend inside the dilated mask; outside is an exact copy
+  inpaint_model: stable-diffusion-v1-5/stable-diffusion-inpainting   # family: sd (CLIP text encoder)
+  inpaint_steps: 30
+  guidance_scale: 7.5
+  lama_url: https://github.com/enesmsahin/simple-lama-inpainting/releases/download/v0.1.0/big-lama.pt
+  addition_area_frac: [0.04, 0.12]
+  recolor_hue_shifts: [30, 90, 150]   # degrees; three severity levels on the same object
+  recolor_min_saturation: 0.25
+  categories: [dog, cat, horse, sheep, cow, bird, teddy bear, car, bicycle, motorcycle,
+               chair, potted plant, bottle, vase, clock, umbrella, backpack, suitcase,
+               laptop, tv, cake, pizza, bowl, cup]
+  # validity check (did the edit really change the content?) uses CLIP, a different family
+  # from the metric encoders (DINOv2, ResNet), so it cannot bias the metric.
+  clip_model: openai/clip-vit-base-patch32
+  min_mean_abs_change: 0.02
+
+# ---------------------------------------------------------------- 03 controls
+controls:
+  types: [blur, noise]          # "blurry/noisy but correct" images with the SAME PSNR as each edit
+  psnr_tol_db: 0.1
+  blur_sigma_range: [0.05, 25.0]
+  noise_std_range: [0.0005, 0.6]
+  # degraded copies of every reference: used for metric calibration (dev) and the
+  # sharpness-bias curve (test). Never mixed with edits.
+  degrade_blur_sigmas: [0.5, 1, 2, 3, 4, 6]
+  degrade_noise_stds: [0.01, 0.03, 0.05, 0.1]
+
+# ---------------------------------------------------------------- 04 restoration
+restore:
+  task: sr_x4                   # 512 -> 128 (bicubic) -> restored 512
+  n_images: 100                 # held-out test images to restore (diffusion is the slow one)
+  edits_per_image: 2            # also restore up to 2 edited images per image (edit-then-restore test)
+  families:
+    regression: {model: caidas/swin2SR-classical-sr-x4-64}
+    gan:        {weights_url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth}
+    diffusion:  {model: stabilityai/stable-diffusion-x4-upscaler, steps: 25, noise_level: 20,
+                 guidance_scale: 4.0, prompt: "a high quality, detailed photo"}
+
+# ---------------------------------------------------------------- 05 metrics
+metrics:
+  fake_models: false            # true = random weights, no downloads (only for tests / smoke run)
+  batch_size: 8
+  shafe_resnet:                 # faithful re-implementation of official SHAFE.py
+    model: resnetaa50d.d_in12k
+    out_indices: [1, 2]
+    lowpass_radius_at_256: 60   # official radius is 60 for 256px; scaled with image size
+    temperature: 0.02
+  dino:
+    model: facebook/dinov2-base
+    input_size: 448             # 448 / 14 = 32x32 patch grid
+    layers: [3, 6, 9, 12]       # per-layer distance maps are saved; tuning picks a subset
+    lowpass_radius_at_256: 60
+
+# ---------------------------------------------------------------- 06 tuning (dev only)
+tuning:
+  layer_subsets: [[12], [9, 12], [6, 9, 12], [3, 6, 9, 12]]
+  softmax_temperatures: [0.005, 0.01, 0.02, 0.05, 0.1]
+  topk_fracs: [0.01, 0.02, 0.05, 0.1]
+  calibrated_temperatures: [0.1, 0.25, 0.5, 1.0, 2.0]   # softmax on calibrated (z-score) maps
+  fpr_target: 0.05
+
+# ---------------------------------------------------------------- 07 evaluation
+evaluation:
+  bootstrap_iters: 1000         # confidence intervals resample IMAGES, not rows
+  sbc_sigmas: [0.5, 1, 2, 3, 4, 6]
+
+# ---------------------------------------------------------------- 08-09 human study
+human:
+  n_edit_vs_blur: 50            # sharp-but-wrong edit vs blurry-but-correct control
+  n_real_vs_real: 50            # two restoration families on the same image (no ground truth)
+  n_severity: 20                # small vs large recolor of the same object
+  n_gold: 10                    # exact copy of reference vs a clearly edited image
+  display_size: 512
+  jpeg_quality: 95
+  min_gold_accuracy: 0.8        # raters below this are excluded (rule fixed BEFORE collection)

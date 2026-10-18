@@ -1,0 +1,7 @@
+data/
+results/maps/
+results/human/ratings/
+smoke_run/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
