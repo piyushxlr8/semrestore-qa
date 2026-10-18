@@ -63,17 +63,19 @@ class SDUpscaleRestorer:
     def __init__(self, model_id, steps, noise_level, guidance_scale, prompt, device):
         import torch
         from diffusers import StableDiffusionUpscalePipeline
-        dtype = torch.float16 if device == "cuda" else torch.float32
-        self.pipe = StableDiffusionUpscalePipeline.from_pretrained(model_id, torch_dtype=dtype).to(device)
+        half = device in ("cuda", "mps")
+        self.pipe = StableDiffusionUpscalePipeline.from_pretrained(
+            model_id, torch_dtype=torch.float16 if half else torch.float32,
+            variant="fp16" if half else None).to(device)
         self.pipe.set_progress_bar_config(disable=True)
-        if device == "cuda":
+        if device != "cpu":
             self.pipe.enable_attention_slicing()
         self.kw = dict(num_inference_steps=steps, noise_level=noise_level, guidance_scale=guidance_scale)
         self.prompt, self.device = prompt, device
 
     def __call__(self, lr, seed=0):
         import torch
-        g = torch.Generator(self.device).manual_seed(int(seed))
+        g = torch.Generator("cpu").manual_seed(int(seed))
         out = self.pipe(prompt=self.prompt, image=Image.fromarray(to_uint8(lr)), generator=g, **self.kw).images[0]
         size = lr.shape[0] * 4
         return np.asarray(out.resize((size, size), Image.BICUBIC), dtype=np.float32) / 255.0

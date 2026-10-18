@@ -47,6 +47,20 @@ def test_addition_box_avoids_objects():
     assert box is not None and (box & objs).mean() / box.mean() < 0.05 + 1e-9
 
 
+def test_box_around_covers_mask():
+    mask = np.zeros((64, 64), bool)
+    mask[10:20, 30:35] = True
+    mask[25, 40] = True
+    box = E.box_around(mask)
+    assert box[mask].all() and box.sum() == (26 - 10) * (41 - 30)
+
+
+def test_odds_drop():
+    assert E.odds_drop(0.999, 0.94) > 5          # removed horse next to its cart: valid
+    assert E.odds_drop(0.99, 0.98) < 5           # LaMa failed, object still there: invalid
+    assert abs(E.odds_drop(0.5, 0.5) - 1) < 1e-9
+
+
 @pytest.mark.parametrize("target", [25.0, 30.0, 35.0])
 def test_psnr_matched_controls(target):
     ref = quantize(textured(3))

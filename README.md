@@ -38,6 +38,12 @@ python -m pytest -q tests                 # 19 fast tests, CPU, no downloads
 python scripts/00_smoke_test.py           # whole pipeline on synthetic images, ~8 min CPU
 ```
 
+**On an Apple Silicon Mac** (this is how our results were produced, on an 8 GB M2): the code picks
+the Mac GPU (`mps`) automatically and runs Stable Diffusion in fp16. LaMa and CLIP run on the CPU to
+leave GPU memory for SD. Expect roughly 2–4 min per image for step 02 and ~1 min per image for the
+diffusion upscaler in step 04, so run 02 and 04 overnight. COCO annotations come from a Hugging Face
+mirror (`config.yaml`), because cocodataset.org can be very slow.
+
 The smoke test uses random-weight networks, so its numbers mean nothing. It only proves that every
 step, table, figure and the human-study page work.
 

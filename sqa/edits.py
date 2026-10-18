@@ -25,16 +25,18 @@ class SDInpainter:
         import torch
         from diffusers import StableDiffusionInpaintPipeline
 
-        dtype = torch.float16 if device == "cuda" else torch.float32
-        self.pipe = StableDiffusionInpaintPipeline.from_pretrained(model_id, torch_dtype=dtype).to(device)
+        half = device in ("cuda", "mps")
+        self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
+            model_id, torch_dtype=torch.float16 if half else torch.float32,
+            variant="fp16" if half else None).to(device)
         self.pipe.set_progress_bar_config(disable=True)
-        if device == "cuda":
+        if device != "cpu":
             self.pipe.enable_attention_slicing()
         self.steps, self.guidance, self.device = steps, guidance, device
 
     def __call__(self, img, region, prompt, negative, seed):
         import torch
-        g = torch.Generator(self.device).manual_seed(int(seed))
+        g = torch.Generator("cpu").manual_seed(int(seed))   # CPU generator: same noise on any GPU
         h, w = region.shape
         out = self.pipe(prompt=prompt, negative_prompt=negative,
                         image=Image.fromarray(to_uint8(img)),
@@ -98,6 +100,22 @@ class ClipChecker:
 def pick_new_category(categories, present, rng, exclude=()):
     options = [c for c in categories if c not in present and c not in exclude]
     return options[rng.integers(len(options))]
+
+
+def box_around(mask: np.ndarray, margin: int = 0) -> np.ndarray:
+    """Filled bounding box of a mask. Substitution inpaints this box, so the new object is not
+    forced into the old object's silhouette."""
+    y0, y1, x0, x1 = bbox_of(mask, margin)
+    box = np.zeros_like(mask, bool)
+    box[y0:y1, x0:x1] = True
+    return box
+
+
+def odds_drop(p_before: float, p_after: float) -> float:
+    """How many times less sure CLIP is that the object is there (odds ratio before / after)."""
+    eps = 1e-4
+    odds = lambda p: np.clip(p, eps, 1 - eps) / (1 - np.clip(p, eps, 1 - eps))  # noqa: E731
+    return float(odds(p_before) / odds(p_after))
 
 
 def find_addition_box(all_objects: np.ndarray, area_frac: float, rng, tries: int = 200,

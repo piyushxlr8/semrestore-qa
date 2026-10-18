@@ -9,10 +9,10 @@ paths:
 
 # ---------------------------------------------------------------- 01 dataset
 dataset:
-  coco_annotations_url: http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+  coco_annotations_url: https://huggingface.co/datasets/pcuenq/coco-2017-mirror/resolve/main/annotations_trainval2017.zip   # mirror of cocodataset.org (faster)
   coco_split: val2017          # images come from COCO's train/val images only (never COCO test)
-  n_images: 300                # 150 dev + 150 held-out test
-  n_dev: 150                   # dev = used for calibration + tuning; test = held out, never tuned on
+  n_images: 120                # 60 dev + 60 held-out test (what we ran on an 8 GB M2 Mac; Colab can do 300)
+  n_dev: 60                    # dev = used for calibration + tuning; test = held out, never tuned on
   image_size: 512
   object_area_frac: [0.03, 0.25]   # target object must cover 3-25% of the crop
   min_area_survival: 0.9           # at least 90% of the object must survive the center crop
@@ -23,10 +23,10 @@ edits:
   mask_dilate_px: 10            # generation region = object mask dilated by this much
   feather_px: 3                 # soft blend inside the dilated mask; outside is an exact copy
   inpaint_model: stable-diffusion-v1-5/stable-diffusion-inpainting   # family: sd (CLIP text encoder)
-  inpaint_steps: 30
+  inpaint_steps: 20             # 20 is enough with the default scheduler; ~35 s per edit on an M2
   guidance_scale: 7.5
   lama_url: https://github.com/enesmsahin/simple-lama-inpainting/releases/download/v0.1.0/big-lama.pt
-  addition_area_frac: [0.04, 0.12]
+  addition_area_frac: [0.06, 0.15]   # big enough that SD draws a whole object
   recolor_hue_shifts: [30, 90, 150]   # degrees; three severity levels on the same object
   recolor_min_saturation: 0.25
   categories: [dog, cat, horse, sheep, cow, bird, teddy bear, car, bicycle, motorcycle,
@@ -35,7 +35,9 @@ edits:
   # validity check (did the edit really change the content?) uses CLIP, a different family
   # from the metric encoders (DINOv2, ResNet), so it cannot bias the metric.
   clip_model: openai/clip-vit-base-patch32
-  min_mean_abs_change: 0.02
+  min_mean_abs_change: 0.02     # edits that barely change pixels are dropped (not used for recolor)
+  removal_min_odds_drop: 5      # removal valid if CLIP is >= 5x less sure the object is still there
+  tries: 2                      # SD seeds to try for addition / substitution until CLIP accepts one
 
 # ---------------------------------------------------------------- 03 controls
 controls:
@@ -51,8 +53,8 @@ controls:
 # ---------------------------------------------------------------- 04 restoration
 restore:
   task: sr_x4                   # 512 -> 128 (bicubic) -> restored 512
-  n_images: 100                 # held-out test images to restore (diffusion is the slow one)
-  edits_per_image: 2            # also restore up to 2 edited images per image (edit-then-restore test)
+  n_images: 60                 # held-out test images to restore (all 60; diffusion is the slow one)
+  edits_per_image: 1            # also restore 1 edited version of each image (edit-then-restore test)
   families:
     regression: {model: caidas/swin2SR-classical-sr-x4-64}
     gan:        {weights_url: https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth}
@@ -68,6 +70,7 @@ metrics:
     out_indices: [1, 2]
     lowpass_radius_at_256: 60   # official radius is 60 for 256px; scaled with image size
     temperature: 0.02
+    input_size: 224             # official SHAFE.py resizes to 224x224 before the ResNet
   dino:
     model: facebook/dinov2-base
     input_size: 448             # 448 / 14 = 32x32 patch grid

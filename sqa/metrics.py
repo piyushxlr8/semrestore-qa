@@ -110,19 +110,23 @@ class RawScorer:
         return 1.0 - (F.normalize(fa, dim=1) * F.normalize(fb, dim=1)).sum(1)   # (N, h, w)
 
     def _shafe_resnet(self, ref, test):
-        """Official SHAFE.py: clamp -> FFT low-pass -> ImageNet norm -> ResNet feats at
-        out_indices [1, 2] -> upsample to the coarsest map, concat -> cosine distance per
-        location -> softmax pooling with temperature 0.02."""
+        """Official SHAFE.py: clamp -> FFT low-pass -> ImageNet norm -> resize to 224 (bilinear)
+        -> ResNet feats at out_indices [1, 2] -> upsample to the coarsest map, concat -> cosine
+        distance per location -> softmax pooling with temperature 0.02."""
         import torch.nn.functional as F
         torch = self.torch
         r = self.shafe_cfg["lowpass_radius_at_256"] * ref.shape[-1] / 256.0
         a = (lowpass_fft(ref, r) - self.mean) / self.std
         b = (lowpass_fft(test, r) - self.mean) / self.std
+        size = self.shafe_cfg.get("input_size")
+        if size:
+            a = F.interpolate(a, size=(size, size), mode="bilinear", align_corners=False)
+            b = F.interpolate(b, size=(size, size), mode="bilinear", align_corners=False)
         fa, fb = self.resnet(a), self.resnet(b)
         size = fa[-1].shape[-2:]
         fa = torch.cat([F.interpolate(f, size=size, mode="bilinear", align_corners=False) for f in fa], 1)
         fb = torch.cat([F.interpolate(f, size=size, mode="bilinear", align_corners=False) for f in fb], 1)
-        dmap = self._cosine_map(fa, fb)                                  # (N, 64, 64) for 512 input
+        dmap = self._cosine_map(fa, fb)                                  # (N, 28, 28) at the official 224 input
         flat = dmap.flatten(1)
         score = (torch.softmax(flat / self.shafe_cfg["temperature"], 1) * flat).sum(1)
         return score, dmap
