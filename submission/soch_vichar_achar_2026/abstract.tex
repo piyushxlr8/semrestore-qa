@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[utf8]{inputenc}
+
+\title{SemRestore-QA: Abstract for Soch Vichar Achar 2026}
+\author{ResCon, IIT Bombay}
+\date{October 2026}
+
+\begin{document}
+
+\begin{center}
+\textbf{\Large SemRestore-QA: Do Image-Quality Metrics Notice When Restoration Changes the Content?} \\[2em]
+\textbf{[Student name 1]\textsuperscript{1}, [Student name 2]\textsuperscript{1}, [Student name 3]\textsuperscript{1}, [Supervisor name]\textsuperscript{2}} \\[1em]
+\textit{\textsuperscript{1}[Department], [Institute name]} \\[0.5em]
+\textit{\textsuperscript{2}[Supervisor's department and institute]}
+\end{center}
+
+\vspace{2em}
+
+\section*{Abstract}
+
+\begin{itemize}
+
+\item \textbf{\textit{Purpose}}: Generative restoration models (GANs, diffusion) can output sharp images with wrong content. HalluGen (CVPR 2026) showed on brain MRI that PSNR, SSIM and LPIPS can score such hallucinations above slightly blurred but correct outputs [1]. We test whether this holds for natural photos and for content changes beyond added objects, and whether a simple localized metric can catch them.
+
+\item \textbf{\textit{Method}}: From 120 COCO images [3] (60 for tuning, 60 held out) we made 403 controlled edits with known masks: addition and substitution (Stable Diffusion inpainting), removal (LaMa) and recolor (hue shift, three severities); a CLIP check rejected failed edits. For each edit, the clean photo was blurred or noised to the same PSNR (within 0.1~dB), so pixel error cannot tell them apart. Our metric, SemRestore, extends SHAFE [1]: DINOv2 [2] patch distances plus a per-patch colour map, each calibrated against blur and noise statistics, then pooled into a score and a heatmap. All settings were frozen on the tuning split. Edited images were also restored by regression, GAN and diffusion super-resolution models.
+
+\item \textbf{\textit{Results}}: On held-out images, SSIM, LPIPS [4] and DISTS preferred the edit over its equal-PSNR faithful control in 72--98\% of pairs (Fig.~1). SHAFE-DINO detected object edits well (AUROC 0.98--1.00) but was at chance for recolouring (0.54), as DINOv2 largely ignores colour. SemRestore reached AUROC 0.95--0.97 on all four edit types, preferred the faithful control in 98--100\% of pairs, located the edit in every heatmap, and missed 24\% of edits at a 5\% false-alarm rate (SHAFE-DINO: 54\%). On restored edits it kept AUROC 1.00 for all three restorer families.
+
+\item \textbf{\textit{Conclusions}}: Common fidelity metrics reward sharp but semantically wrong restorations on natural images too. Localized feature comparison with a colour channel closes this gap, though it ranks edit severity less well than pixel metrics. A blinded human pairwise study is ongoing.
+
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figure1.pdf}
+\caption{(a) Held-out example at equal PSNR: SSIM and LPIPS prefer the edit; our map marks the change. (b) Win-rate of the faithful image (0.5 = chance).}
+\end{figure}
+
+\section*{References}
+
+\begin{enumerate}
+\item S.~Kim \textit{et al.}, ``HalluGen: Synthesizing Realistic and Controllable Hallucinations for Evaluating Image Restoration,'' CVPR 2026.
+\item M.~Oquab \textit{et al.}, ``DINOv2: Learning Robust Visual Features without Supervision,'' TMLR 2024.
+\item T.-Y.~Lin \textit{et al.}, ``Microsoft COCO: Common Objects in Context,'' ECCV 2014.
+\item R.~Zhang \textit{et al.}, ``The Unreasonable Effectiveness of Deep Features as a Perceptual Metric,'' CVPR 2018.
+\end{enumerate}
+
+\end{document}
