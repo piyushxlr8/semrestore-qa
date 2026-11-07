@@ -22,8 +22,15 @@ def main(cfg):
     edits = pd.read_csv(root / "edits" / "edits.csv")
     edits = edits[edits.valid == 1]
     out = ensure(root / "controls")
-    rows, dropped = [], 0
-    for k, e in enumerate(edits.itertuples()):
+    csv_path = out / "controls.csv"
+    # resumable: controls that already exist are kept as they are and never rewritten
+    rows = pd.read_csv(csv_path).to_dict("records") if csv_path.exists() else []
+    have = {r["edit_id"] for r in rows}
+    dropped, n_new = 0, 0
+    for k, e in enumerate(edits.itertuples()):    # k = position among valid edits (noise seed)
+        if e.edit_id in have:
+            continue
+        n_new += 1
         ref = load_image(images.loc[e.image_id, "ref_path"])
         target = psnr(load_image(e.edited_path), ref)
         for ctype in cc["types"]:
@@ -42,14 +49,18 @@ def main(cfg):
                              psnr_control=round(psnr(img, ref), 3), psnr_gap=round(gap, 4)))
         if (k + 1) % 50 == 0:
             print(f"[{k + 1}/{len(edits)}]")
-    pd.DataFrame(rows).to_csv(out / "controls.csv", index=False)
-    print(f"controls: {len(rows)} written, {dropped} could not be matched within "
-          f"{cc['psnr_tol_db']} dB (dropped)")
+    pd.DataFrame(rows).to_csv(csv_path, index=False)
+    print(f"controls: {n_new} edits processed now, {len(rows)} controls in total, {dropped} could not "
+          f"be matched within {cc['psnr_tol_db']} dB (dropped)")
 
     # fixed degradation grid for every reference
     dout = ensure(root / "degraded")
-    drows = []
+    dcsv = dout / "degraded.csv"
+    drows = pd.read_csv(dcsv).to_dict("records") if dcsv.exists() else []
+    dhave = {r["image_id"] for r in drows}
     for img_id, r in images.iterrows():
+        if img_id in dhave:
+            continue
         ref = load_image(r.ref_path)
         grid = [("blur", s) for s in cc["degrade_blur_sigmas"]] + [("noise", s) for s in cc["degrade_noise_stds"]]
         for kind, p in grid:
@@ -59,7 +70,7 @@ def main(cfg):
             save_image(img, path)
             drows.append(dict(degraded_id=did, image_id=img_id, split=r.split, degradation=kind, param=p,
                               path=str(path)))
-    pd.DataFrame(drows).to_csv(dout / "degraded.csv", index=False)
+    pd.DataFrame(drows).to_csv(dcsv, index=False)
     print(f"degraded references: {len(drows)}")
 
 
