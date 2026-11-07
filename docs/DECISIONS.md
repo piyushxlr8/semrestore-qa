@@ -51,3 +51,10 @@ The professor asked for more images. Rules for the scale-up:
     (all four DINOv2 layers; τ = 0.05 for SHAFE-DINO, τ = 0.5 for SemRestore, k = 1% for the
     top-k variant). Dev mean AUROC: SemRestore 0.978 → 0.973, SHAFE-DINO 0.873 → 0.861. The new
     `freeze.json` was committed before step 07 touched the test split.
+15. **Test evaluation and comparison** (8 Nov 2026). `07` and `10` were re-run on the 150-image test
+    split; `scripts/11_compare_scaling.py` computes the before/after (120 vs 300) and new-images-only
+    tables with bootstrap CIs. The 120-image numbers it reports were checked against the published
+    ones (identical). No conclusion changed; additions now tie SHAFE-DINO; the severity weakness is
+    clearer (see RESULTS.md).
+16. **Human study page rebuilt** from the 150-image test split (130 pairs; edit-vs-blur now has the
+    full 50). No ratings had been collected, so nothing was lost; the old pair list is in git history.
