@@ -40,3 +40,14 @@ The professor asked for more images. Rules for the scale-up:
     Per-image random seeds still use the row index in `images.csv`, which did not change for the
     original rows. Same addition retry as before: first pass up to 2 seeds, then one retry pass of
     up to 3 seeds (seed offset 1000) for invalid additions of the new batch.
+12. **Controls are resumable.** Step 03 now keeps existing controls and only processes new edits,
+    so the 737 original controls were not rewritten (checked: identical rows). 97 of the 1,207
+    new-edit controls could not be PSNR-matched within 0.1 dB and were dropped, as before.
+13. **Restoration on all 150 test images** (3 families × 288 outputs). Diffusion took about 75 s per
+    image on the M2, about 3.6 h for the 175 new jobs.
+14. **Re-freeze on the 150-image dev split** (8 Nov 2026). `sqa/metrics.py` and the metric/tuning
+    config are unchanged since tag `results-120`. Calibration now uses 1,500 blurred/noised dev
+    references. The tuning grid picked exactly the same settings as before for every variant
+    (all four DINOv2 layers; τ = 0.05 for SHAFE-DINO, τ = 0.5 for SemRestore, k = 1% for the
+    top-k variant). Dev mean AUROC: SemRestore 0.978 → 0.973, SHAFE-DINO 0.873 → 0.861. The new
+    `freeze.json` was committed before step 07 touched the test split.
