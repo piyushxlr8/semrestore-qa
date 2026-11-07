@@ -1,0 +1,121 @@
+image_id,coco_id,ref_path,object_category,object_mask_path,object_area_frac,all_objects_mask_path,categories_present,split
+coco000000088265,88265,data/refs/coco000000088265.png,horse,data/masks/coco000000088265_object.png,0.0605,data/masks/coco000000088265_allobjects.png,horse,dev
+coco000000023781,23781,data/refs/coco000000023781.png,broccoli,data/masks/coco000000023781_object.png,0.103,data/masks/coco000000023781_allobjects.png,broccoli;carrot,test
+coco000000004495,4495,data/refs/coco000000004495.png,tv,data/masks/coco000000004495_object.png,0.0322,data/masks/coco000000004495_allobjects.png,chair;couch;tv,dev
+coco000000454978,454978,data/refs/coco000000454978.png,motorcycle,data/masks/coco000000454978_object.png,0.0668,data/masks/coco000000454978_allobjects.png,motorcycle,dev
+coco000000438907,438907,data/refs/coco000000438907.png,person,data/masks/coco000000438907_object.png,0.1285,data/masks/coco000000438907_allobjects.png,person;skateboard,dev
+coco000000211120,211120,data/refs/coco000000211120.png,teddy bear,data/masks/coco000000211120_object.png,0.1694,data/masks/coco000000211120_allobjects.png,bowl;teddy bear;truck,test
+coco000000069795,69795,data/refs/coco000000069795.png,potted plant,data/masks/coco000000069795_object.png,0.2013,data/masks/coco000000069795_allobjects.png,potted plant;vase,test
+coco000000286908,286908,data/refs/coco000000286908.png,bowl,data/masks/coco000000286908_object.png,0.0354,data/masks/coco000000286908_allobjects.png,bowl;cup;dining table;donut,dev
+coco000000042296,42296,data/refs/coco000000042296.png,sports ball,data/masks/coco000000042296_object.png,0.0548,data/masks/coco000000042296_allobjects.png,bear;sports ball,test
+coco000000289222,289222,data/refs/coco000000289222.png,traffic light,data/masks/coco000000289222_object.png,0.1639,data/masks/coco000000289222_allobjects.png,bus;person;traffic light,test
+coco000000167128,167128,data/refs/coco000000167128.png,elephant,data/masks/coco000000167128_object.png,0.1346,data/masks/coco000000167128_allobjects.png,elephant,test
+coco000000494913,494913,data/refs/coco000000494913.png,tv,data/masks/coco000000494913_object.png,0.033,data/masks/coco000000494913_allobjects.png,book;cat;chair;clock;couch;cup;dining table;fork;handbag;person;tv,test
+coco000000402720,402720,data/refs/coco000000402720.png,person,data/masks/coco000000402720_object.png,0.0857,data/masks/coco000000402720_allobjects.png,bottle;cell phone;fork;knife;person;pizza;wine glass,dev
+coco000000581482,581482,data/refs/coco000000581482.png,clock,data/masks/coco000000581482_object.png,0.0445,data/masks/coco000000581482_allobjects.png,clock,dev
+coco000000357081,357081,data/refs/coco000000357081.png,cow,data/masks/coco000000357081_object.png,0.08,data/masks/coco000000357081_allobjects.png,cow,dev
+coco000000322959,322959,data/refs/coco000000322959.png,bowl,data/masks/coco000000322959_object.png,0.0545,data/masks/coco000000322959_allobjects.png,apple;banana;bowl;dining table;fork;knife;orange,dev
+coco000000115870,115870,data/refs/coco000000115870.png,person,data/masks/coco000000115870_object.png,0.0724,data/masks/coco000000115870_allobjects.png,book;cell phone;couch;cup;person;potted plant,dev
+coco000000280891,280891,data/refs/coco000000280891.png,orange,data/masks/coco000000280891_object.png,0.0304,data/masks/coco000000280891_allobjects.png,apple;bottle;handbag;orange;person,dev
+coco000000261535,261535,data/refs/coco000000261535.png,person,data/masks/coco000000261535_object.png,0.1703,data/masks/coco000000261535_allobjects.png,person;sports ball;tennis racket,dev
+coco000000311303,311303,data/refs/coco000000311303.png,sandwich,data/masks/coco000000311303_object.png,0.0321,data/masks/coco000000311303_allobjects.png,chair;cup;dining table;knife;person;sandwich,test
+coco000000287667,287667,data/refs/coco000000287667.png,carrot,data/masks/coco000000287667_object.png,0.0539,data/masks/coco000000287667_allobjects.png,book;carrot;dining table;knife,dev
+coco000000525322,525322,data/refs/coco000000525322.png,airplane,data/masks/coco000000525322_object.png,0.061,data/masks/coco000000525322_allobjects.png,airplane,test
+coco000000095155,95155,data/refs/coco000000095155.png,person,data/masks/coco000000095155_object.png,0.0301,data/masks/coco000000095155_allobjects.png,person;snowboard,test
+coco000000482319,482319,data/refs/coco000000482319.png,person,data/masks/coco000000482319_object.png,0.1028,data/masks/coco000000482319_allobjects.png,book;chair;person;toothbrush,dev
+coco000000412240,412240,data/refs/coco000000412240.png,dog,data/masks/coco000000412240_object.png,0.1596,data/masks/coco000000412240_allobjects.png,dog,dev
+coco000000014226,14226,data/refs/coco000000014226.png,person,data/masks/coco000000014226_object.png,0.2392,data/masks/coco000000014226_allobjects.png,apple;chair;dining table;laptop;person,test
+coco000000151938,151938,data/refs/coco000000151938.png,dining table,data/masks/coco000000151938_object.png,0.1413,data/masks/coco000000151938_allobjects.png,bottle;cup;dining table;person;umbrella;wine glass,dev
+coco000000152870,152870,data/refs/coco000000152870.png,giraffe,data/masks/coco000000152870_object.png,0.1484,data/masks/coco000000152870_allobjects.png,giraffe,dev
+coco000000542423,542423,data/refs/coco000000542423.png,bench,data/masks/coco000000542423_object.png,0.0568,data/masks/coco000000542423_allobjects.png,backpack;bench;car;handbag;person,test
+coco000000026204,26204,data/refs/coco000000026204.png,bus,data/masks/coco000000026204_object.png,0.0629,data/masks/coco000000026204_allobjects.png,bus;car;person;traffic light;truck,dev
+coco000000257865,257865,data/refs/coco000000257865.png,person,data/masks/coco000000257865_object.png,0.2311,data/masks/coco000000257865_allobjects.png,person;tennis racket,test
+coco000000281409,281409,data/refs/coco000000281409.png,person,data/masks/coco000000281409_object.png,0.0952,data/masks/coco000000281409_allobjects.png,baseball bat;baseball glove;chair;person,dev
+coco000000173383,173383,data/refs/coco000000173383.png,cake,data/masks/coco000000173383_object.png,0.212,data/masks/coco000000173383_allobjects.png,cake;cup;dining table;knife,test
+coco000000473869,473869,data/refs/coco000000473869.png,wine glass,data/masks/coco000000473869_object.png,0.0359,data/masks/coco000000473869_allobjects.png,bottle;bowl;cup;person;pizza;spoon;vase;wine glass,test
+coco000000434459,434459,data/refs/coco000000434459.png,person,data/masks/coco000000434459_object.png,0.1183,data/masks/coco000000434459_allobjects.png,cake;chair;dining table;knife;person,dev
+coco000000329455,329455,data/refs/coco000000329455.png,cup,data/masks/coco000000329455_object.png,0.0358,data/masks/coco000000329455_allobjects.png,chair;cup;dining table;person;pizza,test
+coco000000558854,558854,data/refs/coco000000558854.png,sandwich,data/masks/coco000000558854_object.png,0.1328,data/masks/coco000000558854_allobjects.png,bowl;cup;dining table;person;sandwich;spoon,test
+coco000000190753,190753,data/refs/coco000000190753.png,bench,data/masks/coco000000190753_object.png,0.0468,data/masks/coco000000190753_allobjects.png,backpack;bench;bicycle;chair;person;skateboard;suitcase,test
+coco000000194506,194506,data/refs/coco000000194506.png,bear,data/masks/coco000000194506_object.png,0.0327,data/masks/coco000000194506_allobjects.png,bear,dev
+coco000000178744,178744,data/refs/coco000000178744.png,boat,data/masks/coco000000178744_object.png,0.0874,data/masks/coco000000178744_allobjects.png,boat;person,dev
+coco000000415194,415194,data/refs/coco000000415194.png,chair,data/masks/coco000000415194_object.png,0.0477,data/masks/coco000000415194_allobjects.png,banana;bowl;chair;cup;dining table;refrigerator;sink;spoon,test
+coco000000264335,264335,data/refs/coco000000264335.png,bird,data/masks/coco000000264335_object.png,0.2156,data/masks/coco000000264335_allobjects.png,bird,dev
+coco000000036936,36936,data/refs/coco000000036936.png,person,data/masks/coco000000036936_object.png,0.058,data/masks/coco000000036936_allobjects.png,book;bowl;cell phone;couch;cup;person;potted plant;remote;tv,dev
+coco000000117525,117525,data/refs/coco000000117525.png,dog,data/masks/coco000000117525_object.png,0.0728,data/masks/coco000000117525_allobjects.png,dog;person,dev
+coco000000451714,451714,data/refs/coco000000451714.png,person,data/masks/coco000000451714_object.png,0.1772,data/masks/coco000000451714_allobjects.png,person;skis,dev
+coco000000121673,121673,data/refs/coco000000121673.png,person,data/masks/coco000000121673_object.png,0.0601,data/masks/coco000000121673_allobjects.png,person;surfboard,test
+coco000000449432,449432,data/refs/coco000000449432.png,person,data/masks/coco000000449432_object.png,0.0351,data/masks/coco000000449432_allobjects.png,backpack;boat;bus;handbag;person;suitcase,test
+coco000000551820,551820,data/refs/coco000000551820.png,person,data/masks/coco000000551820_object.png,0.1745,data/masks/coco000000551820_allobjects.png,person;tennis racket,test
+coco000000412894,412894,data/refs/coco000000412894.png,traffic light,data/masks/coco000000412894_object.png,0.0381,data/masks/coco000000412894_allobjects.png,backpack;handbag;person;traffic light,dev
+coco000000305343,305343,data/refs/coco000000305343.png,dog,data/masks/coco000000305343_object.png,0.1853,data/masks/coco000000305343_allobjects.png,cup;dog,test
+coco000000318138,318138,data/refs/coco000000318138.png,person,data/masks/coco000000318138_object.png,0.0937,data/masks/coco000000318138_allobjects.png,person;remote,test
+coco000000209747,209747,data/refs/coco000000209747.png,cat,data/masks/coco000000209747_object.png,0.1918,data/masks/coco000000209747_allobjects.png,cat;sink,test
+coco000000170739,170739,data/refs/coco000000170739.png,elephant,data/masks/coco000000170739_object.png,0.235,data/masks/coco000000170739_allobjects.png,elephant,test
+coco000000163257,163257,data/refs/coco000000163257.png,umbrella,data/masks/coco000000163257_object.png,0.0309,data/masks/coco000000163257_allobjects.png,person;umbrella,dev
+coco000000389532,389532,data/refs/coco000000389532.png,person,data/masks/coco000000389532_object.png,0.0301,data/masks/coco000000389532_allobjects.png,bird;boat;person,test
+coco000000200839,200839,data/refs/coco000000200839.png,bus,data/masks/coco000000200839_object.png,0.1896,data/masks/coco000000200839_allobjects.png,book;bus;person,test
+coco000000365385,365385,data/refs/coco000000365385.png,cup,data/masks/coco000000365385_object.png,0.2055,data/masks/coco000000365385_allobjects.png,cup;sink;toothbrush,dev
+coco000000489046,489046,data/refs/coco000000489046.png,bird,data/masks/coco000000489046_object.png,0.0316,data/masks/coco000000489046_allobjects.png,bird,dev
+coco000000189820,189820,data/refs/coco000000189820.png,tv,data/masks/coco000000189820_object.png,0.0324,data/masks/coco000000189820_allobjects.png,book;chair;cup;keyboard;mouse;tv,dev
+coco000000464144,464144,data/refs/coco000000464144.png,person,data/masks/coco000000464144_object.png,0.2241,data/masks/coco000000464144_allobjects.png,person;skis,test
+coco000000296657,296657,data/refs/coco000000296657.png,person,data/masks/coco000000296657_object.png,0.0658,data/masks/coco000000296657_allobjects.png,cell phone;fire hydrant;person;tie,dev
+coco000000216277,216277,data/refs/coco000000216277.png,cell phone,data/masks/coco000000216277_object.png,0.0821,data/masks/coco000000216277_allobjects.png,apple;cell phone;person,test
+coco000000296231,296231,data/refs/coco000000296231.png,tv,data/masks/coco000000296231_object.png,0.1239,data/masks/coco000000296231_allobjects.png,book;chair;clock;person;potted plant;tv;vase,test
+coco000000179174,179174,data/refs/coco000000179174.png,suitcase,data/masks/coco000000179174_object.png,0.031,data/masks/coco000000179174_allobjects.png,person;suitcase;umbrella,test
+coco000000064359,64359,data/refs/coco000000064359.png,zebra,data/masks/coco000000064359_object.png,0.0323,data/masks/coco000000064359_allobjects.png,giraffe;zebra,test
+coco000000409211,409211,data/refs/coco000000409211.png,person,data/masks/coco000000409211_object.png,0.1385,data/masks/coco000000409211_allobjects.png,person;sports ball;tennis racket,dev
+coco000000575243,575243,data/refs/coco000000575243.png,car,data/masks/coco000000575243_object.png,0.0573,data/masks/coco000000575243_allobjects.png,car;person;traffic light;umbrella,test
+coco000000335954,335954,data/refs/coco000000335954.png,knife,data/masks/coco000000335954_object.png,0.0375,data/masks/coco000000335954_allobjects.png,bowl;knife,dev
+coco000000061418,61418,data/refs/coco000000061418.png,chair,data/masks/coco000000061418_object.png,0.0317,data/masks/coco000000061418_allobjects.png,boat;chair;person,dev
+coco000000417632,417632,data/refs/coco000000417632.png,bottle,data/masks/coco000000417632_object.png,0.0391,data/masks/coco000000417632_allobjects.png,bottle;bowl;cup;handbag;person;tie;wine glass,test
+coco000000189752,189752,data/refs/coco000000189752.png,knife,data/masks/coco000000189752_object.png,0.0528,data/masks/coco000000189752_allobjects.png,chair;cup;dining table;fork;knife;person;pizza;wine glass,dev
+coco000000291791,291791,data/refs/coco000000291791.png,person,data/masks/coco000000291791_object.png,0.0321,data/masks/coco000000291791_allobjects.png,backpack;handbag;motorcycle;person,test
+coco000000303499,303499,data/refs/coco000000303499.png,person,data/masks/coco000000303499_object.png,0.0928,data/masks/coco000000303499_allobjects.png,horse;person,test
+coco000000502229,502229,data/refs/coco000000502229.png,train,data/masks/coco000000502229_object.png,0.0449,data/masks/coco000000502229_allobjects.png,train,test
+coco000000129945,129945,data/refs/coco000000129945.png,person,data/masks/coco000000129945_object.png,0.0621,data/masks/coco000000129945_allobjects.png,baseball bat;baseball glove;person,dev
+coco000000150224,150224,data/refs/coco000000150224.png,person,data/masks/coco000000150224_object.png,0.0355,data/masks/coco000000150224_allobjects.png,backpack;chair;handbag;person;umbrella,dev
+coco000000538364,538364,data/refs/coco000000538364.png,motorcycle,data/masks/coco000000538364_object.png,0.1311,data/masks/coco000000538364_allobjects.png,bench;car;handbag;motorcycle;person,dev
+coco000000380706,380706,data/refs/coco000000380706.png,bus,data/masks/coco000000380706_object.png,0.0464,data/masks/coco000000380706_allobjects.png,bus;car;motorcycle;person;traffic light,test
+coco000000138819,138819,data/refs/coco000000138819.png,sink,data/masks/coco000000138819_object.png,0.2314,data/masks/coco000000138819_allobjects.png,sink;toilet,test
+coco000000136772,136772,data/refs/coco000000136772.png,orange,data/masks/coco000000136772_object.png,0.2096,data/masks/coco000000136772_allobjects.png,bowl;orange,dev
+coco000000017379,17379,data/refs/coco000000017379.png,tv,data/masks/coco000000017379_object.png,0.0726,data/masks/coco000000017379_allobjects.png,person;sink;tv,dev
+coco000000384808,384808,data/refs/coco000000384808.png,person,data/masks/coco000000384808_object.png,0.199,data/masks/coco000000384808_allobjects.png,bottle;cell phone;person;sink;toilet,test
+coco000000485424,485424,data/refs/coco000000485424.png,oven,data/masks/coco000000485424_object.png,0.0637,data/masks/coco000000485424_allobjects.png,bottle;cup;oven;suitcase,test
+coco000000296222,296222,data/refs/coco000000296222.png,handbag,data/masks/coco000000296222_object.png,0.0331,data/masks/coco000000296222_allobjects.png,chair;cup;fork;handbag;person;pizza,test
+coco000000368335,368335,data/refs/coco000000368335.png,car,data/masks/coco000000368335_object.png,0.0311,data/masks/coco000000368335_allobjects.png,car;horse;truck,test
+coco000000556158,556158,data/refs/coco000000556158.png,person,data/masks/coco000000556158_object.png,0.1069,data/masks/coco000000556158_allobjects.png,person;skis,test
+coco000000298396,298396,data/refs/coco000000298396.png,oven,data/masks/coco000000298396_object.png,0.0509,data/masks/coco000000298396_allobjects.png,banana;bowl;chair;clock;dining table;knife;oven;scissors;sink,dev
+coco000000452122,452122,data/refs/coco000000452122.png,airplane,data/masks/coco000000452122_object.png,0.1369,data/masks/coco000000452122_allobjects.png,airplane,test
+coco000000390826,390826,data/refs/coco000000390826.png,bear,data/masks/coco000000390826_object.png,0.0924,data/masks/coco000000390826_allobjects.png,bear;bottle;person,dev
+coco000000277197,277197,data/refs/coco000000277197.png,couch,data/masks/coco000000277197_object.png,0.0376,data/masks/coco000000277197_allobjects.png,chair;couch;dining table;potted plant;vase,test
+coco000000193926,193926,data/refs/coco000000193926.png,banana,data/masks/coco000000193926_object.png,0.0786,data/masks/coco000000193926_allobjects.png,apple;backpack;banana;bicycle;bowl;orange;person,test
+coco000000133645,133645,data/refs/coco000000133645.png,boat,data/masks/coco000000133645_object.png,0.067,data/masks/coco000000133645_allobjects.png,bench;boat,test
+coco000000153011,153011,data/refs/coco000000153011.png,person,data/masks/coco000000153011_object.png,0.0318,data/masks/coco000000153011_allobjects.png,bus;car;chair;dining table;handbag;person;truck,dev
+coco000000476787,476787,data/refs/coco000000476787.png,pizza,data/masks/coco000000476787_object.png,0.1315,data/masks/coco000000476787_allobjects.png,bottle;bowl;cup;knife;pizza,dev
+coco000000002431,2431,data/refs/coco000000002431.png,cup,data/masks/coco000000002431_object.png,0.0515,data/masks/coco000000002431_allobjects.png,cup;dining table;knife;person;spoon;wine glass,test
+coco000000389197,389197,data/refs/coco000000389197.png,person,data/masks/coco000000389197_object.png,0.0366,data/masks/coco000000389197_allobjects.png,person;surfboard,dev
+coco000000363875,363875,data/refs/coco000000363875.png,person,data/masks/coco000000363875_object.png,0.1517,data/masks/coco000000363875_allobjects.png,bus;motorcycle;person,dev
+coco000000439715,439715,data/refs/coco000000439715.png,person,data/masks/coco000000439715_object.png,0.0341,data/masks/coco000000439715_allobjects.png,horse;person;umbrella,test
+coco000000548780,548780,data/refs/coco000000548780.png,person,data/masks/coco000000548780_object.png,0.0667,data/masks/coco000000548780_allobjects.png,backpack;bench;bird;handbag;person;potted plant,test
+coco000000201072,201072,data/refs/coco000000201072.png,tennis racket,data/masks/coco000000201072_object.png,0.0313,data/masks/coco000000201072_allobjects.png,person;tennis racket,test
+coco000000082688,82688,data/refs/coco000000082688.png,person,data/masks/coco000000082688_object.png,0.0367,data/masks/coco000000082688_allobjects.png,cell phone;person;remote,dev
+coco000000179112,179112,data/refs/coco000000179112.png,cell phone,data/masks/coco000000179112_object.png,0.0314,data/masks/coco000000179112_allobjects.png,cell phone;person,test
+coco000000262631,262631,data/refs/coco000000262631.png,vase,data/masks/coco000000262631_object.png,0.0671,data/masks/coco000000262631_allobjects.png,bottle;person;vase,dev
+coco000000153797,153797,data/refs/coco000000153797.png,person,data/masks/coco000000153797_object.png,0.0672,data/masks/coco000000153797_allobjects.png,baseball glove;person;sports ball,dev
+coco000000115118,115118,data/refs/coco000000115118.png,train,data/masks/coco000000115118_object.png,0.2154,data/masks/coco000000115118_allobjects.png,train,dev
+coco000000012670,12670,data/refs/coco000000012670.png,person,data/masks/coco000000012670_object.png,0.047,data/masks/coco000000012670_allobjects.png,backpack;cell phone;handbag;person;teddy bear,dev
+coco000000398652,398652,data/refs/coco000000398652.png,potted plant,data/masks/coco000000398652_object.png,0.036,data/masks/coco000000398652_allobjects.png,dining table;potted plant,dev
+coco000000552842,552842,data/refs/coco000000552842.png,person,data/masks/coco000000552842_object.png,0.0386,data/masks/coco000000552842_allobjects.png,baseball glove;person,test
+coco000000202445,202445,data/refs/coco000000202445.png,cat,data/masks/coco000000202445_object.png,0.128,data/masks/coco000000202445_allobjects.png,bed;cat,dev
+coco000000199442,199442,data/refs/coco000000199442.png,person,data/masks/coco000000199442_object.png,0.0727,data/masks/coco000000199442_allobjects.png,person;surfboard,dev
+coco000000060347,60347,data/refs/coco000000060347.png,bench,data/masks/coco000000060347_object.png,0.0872,data/masks/coco000000060347_allobjects.png,bench;person,test
+coco000000492937,492937,data/refs/coco000000492937.png,person,data/masks/coco000000492937_object.png,0.0463,data/masks/coco000000492937_allobjects.png,bicycle;person;train,test
+coco000000577864,577864,data/refs/coco000000577864.png,person,data/masks/coco000000577864_object.png,0.054,data/masks/coco000000577864_allobjects.png,person;sports ball,dev
+coco000000268375,268375,data/refs/coco000000268375.png,elephant,data/masks/coco000000268375_object.png,0.1854,data/masks/coco000000268375_allobjects.png,elephant,dev
+coco000000009769,9769,data/refs/coco000000009769.png,truck,data/masks/coco000000009769_object.png,0.2081,data/masks/coco000000009769_allobjects.png,fire hydrant;person;truck,test
+coco000000147745,147745,data/refs/coco000000147745.png,truck,data/masks/coco000000147745_object.png,0.1831,data/masks/coco000000147745_allobjects.png,truck,dev
+coco000000329319,329319,data/refs/coco000000329319.png,dining table,data/masks/coco000000329319_object.png,0.0703,data/masks/coco000000329319_allobjects.png,bench;cat;chair;dining table,dev
+coco000000493905,493905,data/refs/coco000000493905.png,person,data/masks/coco000000493905_object.png,0.0495,data/masks/coco000000493905_allobjects.png,chair;person;sports ball;tennis racket,test
+coco000000342397,342397,data/refs/coco000000342397.png,person,data/masks/coco000000342397_object.png,0.048,data/masks/coco000000342397_allobjects.png,person;skis,test
+coco000000490515,490515,data/refs/coco000000490515.png,person,data/masks/coco000000490515_object.png,0.0856,data/masks/coco000000490515_allobjects.png,backpack;person;snowboard,dev
