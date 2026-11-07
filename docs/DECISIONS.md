@@ -35,3 +35,8 @@ The professor asked for more images. Rules for the scale-up:
     touched. Only step 06 is re-run on the larger dev split, which recomputes calibration statistics,
     the chosen layers/temperature and the thresholds. The new `freeze.json` is committed before
     step 07 runs on test.
+11. **Edits only for the new batch.** Step 02 runs with `--batch new`, so the original 120 images
+    get no extra edits (for example a retried addition box) and their data stays exactly as before.
+    Per-image random seeds still use the row index in `images.csv`, which did not change for the
+    original rows. Same addition retry as before: first pass up to 2 seeds, then one retry pass of
+    up to 3 seeds (seed offset 1000) for invalid additions of the new batch.

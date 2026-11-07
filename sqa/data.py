@@ -44,10 +44,15 @@ def crop_array(arr: np.ndarray, size: int, resample) -> np.ndarray:
     return np.asarray(pil)[top:top + size, left:left + size]
 
 
-def build_dataset(cfg) -> pd.DataFrame:
+def build_dataset(cfg, n_images=None, n_dev=None, exclude_ids=(), split_seed=None) -> pd.DataFrame:
+    """Pick images, crop, save masks, split dev/test. With `exclude_ids` (COCO ids already in the
+    set) it walks the same seeded image order and skips them, so new images never duplicate old ones."""
     from pycocotools.coco import COCO
 
     dcfg = cfg["dataset"]
+    n_images = n_images or dcfg["n_images"]
+    n_dev = dcfg["n_dev"] if n_dev is None else n_dev
+    exclude_ids = set(int(i) for i in exclude_ids)
     root = Path(cfg["paths"]["data_dir"])
     size = dcfg["image_size"]
     ann_path = download_annotations(dcfg["coco_annotations_url"], root / "coco", dcfg["coco_split"])
@@ -61,8 +66,10 @@ def build_dataset(cfg) -> pd.DataFrame:
     lo, hi = dcfg["object_area_frac"]
     chosen = []                      # pass 1: pick images and target objects (annotations only)
     for img_id in img_ids:
-        if len(chosen) >= int(dcfg["n_images"] * 1.1):   # 10% spare in case a download fails
+        if len(chosen) >= int(n_images * 1.1):   # 10% spare in case a download fails
             break
+        if img_id in exclude_ids:
+            continue
         info = coco.loadImgs(img_id)[0]
         anns = coco.loadAnns(coco.getAnnIds(imgIds=img_id, iscrowd=None))
         if not anns:
@@ -96,7 +103,7 @@ def build_dataset(cfg) -> pd.DataFrame:
     rows = []
     with ThreadPoolExecutor(8) as pool:
         for (info, anns, a, obj_mask, union, frac), pil in zip(chosen, pool.map(fetch, [c[0] for c in chosen])):
-            if pil is None or len(rows) >= dcfg["n_images"]:
+            if pil is None or len(rows) >= n_images:
                 continue
             img = crop_array(np.asarray(pil), size, Image.BICUBIC).astype(np.float32) / 255.0
             image_id = f"coco{info['id']:012d}"
@@ -111,10 +118,24 @@ def build_dataset(cfg) -> pd.DataFrame:
                              object_category=cat_name[a["category_id"]], object_mask_path=str(obj_path),
                              object_area_frac=round(float(frac), 4), all_objects_mask_path=str(all_path),
                              categories_present=";".join(present)))
-            print(f"[{len(rows)}/{dcfg['n_images']}] {image_id} target={rows[-1]['object_category']}")
+            print(f"[{len(rows)}/{n_images}] {image_id} target={rows[-1]['object_category']}")
 
     df = pd.DataFrame(rows)
-    order = rng.permutation(len(df))
+    split_rng = rng if split_seed is None else np.random.default_rng(split_seed)
+    order = split_rng.permutation(len(df))
     df["split"] = "test"
-    df.loc[df.index[order[: dcfg["n_dev"]]], "split"] = "dev"
+    df.loc[df.index[order[:n_dev]], "split"] = "dev"
     return df
+
+
+def add_images(cfg, existing: pd.DataFrame, n_new: int, n_new_dev: int) -> pd.DataFrame:
+    """Scale up: keep every existing image (and its split) and append `n_new` new ones, split
+    `n_new_dev` dev / rest test with their own seeded shuffle. Adds a `batch` column."""
+    old = existing.copy()
+    if "batch" not in old:
+        old["batch"] = "original"
+    new = build_dataset(cfg, n_images=n_new, n_dev=n_new_dev, exclude_ids=old.coco_id,
+                        split_seed=cfg["seed"] + 1)
+    new["batch"] = "new"
+    assert not set(new.coco_id) & set(old.coco_id), "duplicate COCO image"
+    return pd.concat([old, new], ignore_index=True)

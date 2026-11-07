@@ -24,7 +24,7 @@ from sqa.viz import contact_sheet  # noqa: E402
 BG_TEXTS = "a photo of an empty background"
 
 
-def main(cfg, limit=None, redo_invalid=None, tries=None):
+def main(cfg, limit=None, redo_invalid=None, tries=None, batch=None):
     seed_everything(cfg["seed"])
     ec = cfg["edits"]
     root = data_dir(cfg)
@@ -36,7 +36,10 @@ def main(cfg, limit=None, redo_invalid=None, tries=None):
     done = pd.read_csv(csv_path) if csv_path.exists() else pd.DataFrame(columns=["edit_id"])
     seed_offset = 0
     if redo_invalid:    # second chance for edits CLIP rejected: new seeds (and a new box/category)
-        done = done[~((done.edit_type == redo_invalid) & (done.valid == 0))]
+        retry = (done.edit_type == redo_invalid) & (done.valid == 0)
+        if batch:     # only retry edits of images in this batch
+            retry &= done.image_id.isin(images[images.batch == batch].image_id)
+        done = done[~retry]
         seed_offset = 1000
         if tries:
             ec["tries"] = tries
@@ -70,6 +73,8 @@ def main(cfg, limit=None, redo_invalid=None, tries=None):
 
     t_start = time.time()
     for n, r in enumerate(images.itertuples()):
+        if batch and r.batch != batch:   # n stays the row index, so per-image seeds never change
+            continue
         rng = np.random.default_rng(cfg["seed"] * 100003 + n)
         ref = load_image(r.ref_path)
         obj = load_mask(r.object_mask_path)
@@ -177,5 +182,6 @@ if __name__ == "__main__":
     ap.add_argument("--limit", type=int, default=None, help="only the first N images (quick test)")
     ap.add_argument("--redo-invalid", default=None, help="e.g. addition: retry edits CLIP rejected")
     ap.add_argument("--tries", type=int, default=None, help="SD seeds per edit for the retry")
+    ap.add_argument("--batch", default=None, help="only images of this batch in images.csv, e.g. new")
     a = ap.parse_args()
-    main(load_config(a.config), a.limit, a.redo_invalid, a.tries)
+    main(load_config(a.config), a.limit, a.redo_invalid, a.tries, a.batch)
