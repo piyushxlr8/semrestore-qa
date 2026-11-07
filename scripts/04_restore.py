@@ -68,6 +68,10 @@ def main(cfg, families=None):
                              family=family, source=source, lr_path=str(lp), out_path=str(op)))
             if k == 0:
                 print(f"  first image: {time.time() - t0:.1f}s")
+            if k == 9:
+                per = (time.time() - t0) / 10
+                print(f"  first 10 images: {per:.1f}s per image -> ETA for {family}: "
+                      f"{per * len(todo) / 3600:.2f} h ({len(todo)} images)")
             if (k + 1) % 20 == 0:
                 pd.DataFrame(rows).to_csv(csv_path, index=False)
                 print(f"  [{k + 1}/{len(todo)}]")
