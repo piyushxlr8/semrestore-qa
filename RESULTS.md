@@ -2,7 +2,7 @@
 
 Run on an 8 GB Apple M2 Mac. Every number comes from `results/tables/*.csv` and can be regenerated
 with `scripts/07_evaluate.py` and `scripts/11_compare_scaling.py`. All numbers are from the
-**held-out test split**. The metric was frozen on the dev split first (commit `68dc04c`) before any
+**held-out test split**. The metric was frozen on the dev split first (commit `b9899ab`) before any
 test evaluation. 95% confidence intervals come from 1,000 bootstrap resamples of images.
 
 The first run used 120 images (results kept in `results/snapshot_120/`, git tag `results-120`).

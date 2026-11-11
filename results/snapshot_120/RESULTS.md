@@ -2,7 +2,7 @@
 
 Run on an 8 GB Apple M2 Mac, about 9 hours end to end. Every number comes from
 `results/tables/*.csv` and can be regenerated with `scripts/07_evaluate.py`. All numbers are from
-the **held-out test split**; the metric was frozen on the dev split first (commit `5c27959`, before
+the **held-out test split**; the metric was frozen on the dev split first (commit `12d7ae6`, before
 any test evaluation). 95% confidence intervals come from 1,000 bootstrap resamples of images.
 
 ## What we ran

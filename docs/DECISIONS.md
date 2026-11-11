@@ -13,7 +13,7 @@ Every choice that affects the data, the metric or the evaluation is recorded her
    recolor validity depends only on the object's saturation, so all three severities stay together.
 4. **Metric change made on dev only**: SHAFE-DINO was at chance on recolor on dev, so a calibrated
    colour map was added; top-k pooling did not beat softmax pooling, so softmax was kept. The metric
-   was frozen (commit `5c27959`) before the single test evaluation.
+   was frozen (commit `12d7ae6`) before the single test evaluation.
 5. **Restoration**: all test images, plus 1 edited version each, with Swin2SR, Real-ESRGAN and the
    SD ×4 upscaler.
 6. **Known limitation**: 42 of 62 substitutions could not get a blur control within 0.1 dB
